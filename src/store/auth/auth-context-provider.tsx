@@ -19,7 +19,7 @@ export interface AuthState {
 }
 
 interface IAuthContext {
-  authState?: AuthState;
+  authState: AuthState;
   authActions?: AuthActions;
 }
 
@@ -38,7 +38,9 @@ const reducer = (state: AuthState, action: ReducerAction): AuthState => {
   }
 };
 
-export const AuthContext = React.createContext<IAuthContext>({});
+export const AuthContext = React.createContext<IAuthContext>({
+  authState: initialState,
+});
 
 export const AuthProvider: React.FC<{}> = ({ children }) => {
   const [authState, authActions] = useAuthActions<AuthState>(

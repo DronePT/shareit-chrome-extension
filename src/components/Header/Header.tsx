@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
 import { AuthContext } from "../../store/auth/auth-context-provider";
 import LoginForm, { LoginData } from "./components/LoginForm";
 
@@ -18,6 +18,8 @@ export const Header: React.FC<Props> = () => {
     closeSignInForm();
   };
 
+  const isLoggedIn = useMemo(() => !!authState.user, [authState.user]);
+
   return (
     <>
       <style>{styles}</style>
@@ -25,17 +27,17 @@ export const Header: React.FC<Props> = () => {
         <h2>
           Share<span>it</span>
         </h2>
-        {authState?.user ? (
+        {isLoggedIn ? (
           <div className="shareit-header--user">
             <div className="name">
-              <span>{authState.user.name}</span>
+              <span>{authState.user?.name}</span>
               <a href="#signout" onClick={authActions?.logout}>
                 Signout
               </a>
             </div>
             <div
               className="avatar"
-              style={{ backgroundImage: `url(${authState.user.avatar})` }}
+              style={{ backgroundImage: `url(${authState.user?.avatar})` }}
             ></div>
           </div>
         ) : (

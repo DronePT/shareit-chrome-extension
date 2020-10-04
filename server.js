@@ -111,7 +111,7 @@ io.on("connection", (socket) => {
     console.warn("sharing...");
     console.dir(shares[rand]);
 
-    setTimeout(share, 5000 + Math.random() * 5);
+    setTimeout(share, 15000 + Math.random() * 15);
   };
 
   share();

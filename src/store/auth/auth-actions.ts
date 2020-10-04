@@ -1,7 +1,6 @@
 import { useMemo, useReducer } from "react";
+import { sendToBackground } from "../api/send-to-background";
 import { ReducerAction } from "../typings";
-
-declare const chrome: any;
 
 export const AUTH_LOGIN = "AUTH_LOGIN";
 export const AUTH_LOGOUT = "AUTH_LOGOUT";
@@ -24,13 +23,23 @@ export const useAuthActions = <T>(
 
   const actions = useMemo(
     () => ({
-      login(user: LoginData) {
-        chrome.runtime.sendMessage(
-          { action: "login", email: user.email, password: user.password },
-          function (user: any) {
-            dispatch({ type: AUTH_LOGIN, payload: user });
+      async login(user: LoginData) {
+        try {
+          const { email, password } = user;
+
+          const result = await sendToBackground("login", {
+            email,
+            password,
+          });
+
+          if (result.error) {
+            throw new Error(result.error);
           }
-        );
+
+          dispatch({ type: AUTH_LOGIN, payload: result });
+        } catch (error) {
+          console.warn("ERROR ocurred", error);
+        }
       },
       logout() {
         dispatch({ type: AUTH_LOGOUT });

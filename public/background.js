@@ -1,106 +1,124 @@
 /* global chrome, io */
-let _react = "asset-manifest.json", // react manifest
-  _tabs = []; // tabs with extension active
+const _react = "asset-manifest.json"; // react manifest
+let _tabs = []; // tabs with extension active
 
-let readTextFile = (file, callback) => {
+const readTextFile = (file, callback) => {
   // file has to be in the root (/public)
   var rawFile = new XMLHttpRequest();
   rawFile.overrideMimeType("application/json");
   rawFile.open("GET", file, true);
   rawFile.onreadystatechange = function () {
-    callback(rawFile.responseText);
     if (rawFile.readyState === 4 && rawFile.status === 200) {
+      callback(rawFile.responseText);
     }
   };
   rawFile.send(null);
 };
-let disable = () => {
-  for (let i = 0; i < _tabs.length; i += 1) {
-    const tab = _tabs[i];
 
-    let code = `document.querySelectorAll('#shareit-inspireit--chrome-extension').forEach(el => el.remove())`;
-
-    chrome.tabs.executeScript(tab.id, { code: code });
-    chrome.browserAction.setBadgeText({ text: "", tabId: tab.id });
-  }
+const disable = () => {
+  // for (let i = 0; i < _tabs.length; i += 1) {
+  //   const tab = _tabs[i];
+  //   const code = `document.querySelectorAll('#shareit-inspireit--chrome-extension').forEach(el => el.remove())`;
+  //   chrome.tabs.executeScript(tab.id, { code: code });
+  //   chrome.browserAction.setBadgeText({ text: "", tabId: tab.id });
+  // }
   _tabs = [];
 };
-let enable = (tab) => {
-  const code = `if (document.querySelectorAll('#shareit-inspireit--chrome-extension').length) {
-    document.querySelectorAll('#shareit-inspireit--chrome-extension').forEach(el => el.remove());
-  }`;
 
-  chrome.tabs.executeScript(tab.id, { code: code });
+const executeCode = (tab, code) =>
+  new Promise((resolve) => {
+    chrome.tabs.executeScript(tab.id, { code }, (executedCode) => {
+      resolve(executedCode);
+    });
+  });
 
-  // get the REACT manifest
-  readTextFile(_react, function (text) {
-    try {
-      const _data = JSON.parse(text);
+const toggleExtension = (tab) => {
+  const code = `document.querySelectorAll('#shareit-inspireit--chrome-extension').length;`;
 
-      let _keys = Object.keys(_data.files),
-        _js = [
-          _data.files["main.js"],
-          _data.files[_keys[3]],
-          _data.files[_keys[5]],
-        ];
+  executeCode(tab, code).then(([alreadyInjected]) => {
+    if (alreadyInjected) {
+      const tabStatusIndex = _tabs.findIndex((t) => t.tab.id === tab.id);
+      const tabStatus = _tabs[tabStatusIndex];
 
-      // inject all the JS files required
-      _js.forEach((file) => {
-        console.warn("injecting:", file);
-        chrome.tabs.executeScript(tab.id, {
-          file: file,
+      executeCode(
+        tab,
+        `document.querySelector('#shareit-inspireit--chrome-extension').style.display = '${
+          tabStatus.visible ? "none" : "flex"
+        }';`
+      ).then();
+
+      _tabs[tabStatusIndex] = {
+        ...tabStatus,
+        visible: !tabStatus.visible,
+      };
+
+      return;
+    }
+
+    // get the REACT manifest
+    readTextFile(_react, function (text) {
+      try {
+        const _data = JSON.parse(text);
+
+        const _keys = Object.keys(_data.files),
+          _js = [
+            _data.files["main.js"],
+            _data.files[_keys[3]],
+            _data.files[_keys[5]],
+          ];
+
+        // inject all the JS files required
+        _js.forEach((file) => {
+          chrome.tabs.executeScript(tab.id, {
+            file: file,
+          });
         });
-      });
-      // inject styles
-      chrome.tabs.insertCSS(tab.id, {
-        file: _data.files["main.css"],
-      });
+        // inject styles
+        chrome.tabs.insertCSS(tab.id, {
+          file: _data.files["main.css"],
+        });
 
-      // badge
-      // chrome.browserAction.setBadgeText({ text: "ON", tabId: tab.id });
-      // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+        // badge
+        // chrome.browserAction.setBadgeText({ text: "ON", tabId: tab.id });
+        // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
 
-      _tabs.push(tab);
-    } catch (error) {}
+        _tabs.push({ tab, visible: true });
+      } catch (error) {}
+    });
   });
 };
 
 // extension clicked on/off
 chrome.browserAction.onClicked.addListener((tab) => {
-  const _on = _tabs.find((t) => t.id === tab.id);
-  console.warn("clicking on it!", _on);
-  _on ? disable(tab) : enable(tab);
-
-  // _on ? disable(tab) : enable(tab);
-  // _on = !_on;
+  toggleExtension(tab);
 });
 
-/**
-{
-      name: "André Alves",
-      avatar:
-        "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
-    }
- */
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  console.log("request", request);
-  console.log("sender", sender);
-
   switch (String(request.action).toLowerCase()) {
     case "get-id":
       sendResponse(chrome.runtime.id);
       return true;
     case "login": {
       // TODO: login logic here!
-      sendResponse({
-        name: "André Alves",
-        avatar:
-          "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
-      });
+      if (
+        request.payload.email === "andre.alves@inspireit.pt" &&
+        request.payload.password === "123456"
+      ) {
+        sendResponse({
+          name: "André Alves",
+          avatar:
+            "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
+        });
+        return true;
+      }
+
+      sendResponse({ error: "Invalid credentials!" });
+
       return true;
     }
     default:
+      console.warn("request:", request);
+      console.warn("sender:", sender);
       return true;
   }
 });
@@ -127,14 +145,11 @@ socket.on("connect", () => {
 });
 
 socket.on("message", (message) => {
-  console.warn("handle message", message);
   chrome.browserAction.setBadgeText({ text: String(message.count) });
   chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
 });
 
 socket.on("new-share", (metadata) => {
-  console.warn("new-share", metadata);
-
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     const [tab] = tabs;
 
