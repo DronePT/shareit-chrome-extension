@@ -36,6 +36,7 @@ export const styles = `
     .articles {
         width: 100%;
         padding: 1em;
+        overflow-y: auto;
     }
 
     *, *:before, *:after {

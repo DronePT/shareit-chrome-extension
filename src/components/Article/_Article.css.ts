@@ -44,4 +44,54 @@ export const styles = `
     font-weight: 400;
     color: ${colors.black80};
   }
+
+  .shareit-article--footer {
+    padding: .5em 1em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .shareit-article--likes {
+    display: flex;
+    align-items: center;
+  }
+
+  .shareit-article--likes .likes-icon {
+    width:24px;
+
+    transition: all 150ms ease-in-out;
+  }
+
+  .shareit-article--likes .likes-icon path {
+    fill: ${colors.black80};
+  }
+
+  .shareit-article--likes .likes-icon.liked path,
+  .shareit-article--likes .likes-icon:hover path {
+    fill: ${colors.primary};
+  }
+
+  .shareit-article--likes .likes-icon:hover {
+    transform: scale(1.2);
+    color: ${colors.primary};
+  }
+
+  .shareit-article--likes .likes-count {
+      margin-left: .5em;
+  }
+
+  .shareit-article--author {
+    display: flex;
+    align-items: center;
+  }
+
+  .shareit-article--author label {
+    color: ${colors.black50};
+    text-transform: uppercase;
+    font-size: 0.75em;
+    margin-right: .5em;
+    font-weight: 700;
+    text-shadow: 0px -1px rgba(255, 255, 255, .5);
+  }
 `;
