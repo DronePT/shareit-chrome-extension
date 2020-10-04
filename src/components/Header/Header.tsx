@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { AuthContext } from "../../store/auth-context-provider";
+import { AuthContext } from "../../store/auth/auth-context-provider";
 import LoginForm, { LoginData } from "./components/LoginForm";
 
 import { styles } from "./_Header.css";

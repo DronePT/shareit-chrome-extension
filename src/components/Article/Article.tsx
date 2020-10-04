@@ -1,14 +1,10 @@
 import React from "react";
+import { Post } from "../../store/posts/post";
 
 import { styles } from "./_Article.css";
 
 interface ArticleProps {
-  data: {
-    title: string;
-    image: string;
-    url: string;
-    description: string | null;
-  };
+  data: Post;
 }
 
 export const Article: React.FC<ArticleProps> = ({ data }) => {

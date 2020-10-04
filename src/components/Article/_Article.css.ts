@@ -12,12 +12,18 @@ export const styles = `
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
+
+    animation: fadeIn;
+    animation-duration: 260ms;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: forwards;
+    animation-iteration-count: 1;
   }
 
   .shareit-article .image {
     width: 100%;
     height: 120px;
-    background-color: red;
+    background-color: #f1f2f3;
     background-size: cover;
     background-position: center center;
 

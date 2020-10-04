@@ -26,6 +26,12 @@ let disable = () => {
   _tabs = [];
 };
 let enable = (tab) => {
+  const code = `if (document.querySelectorAll('#shareit-inspireit--chrome-extension').length) {
+    document.querySelectorAll('#shareit-inspireit--chrome-extension').forEach(el => el.remove());
+  }`;
+
+  chrome.tabs.executeScript(tab.id, { code: code });
+
   // get the REACT manifest
   readTextFile(_react, function (text) {
     try {
@@ -69,9 +75,34 @@ chrome.browserAction.onClicked.addListener((tab) => {
   // _on = !_on;
 });
 
+/**
+{
+      name: "André Alves",
+      avatar:
+        "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
+    }
+ */
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  sendResponse({ message: Math.floor(Math.random() * 10 + 1) });
-  return true;
+  console.log("request", request);
+  console.log("sender", sender);
+
+  switch (String(request.action).toLowerCase()) {
+    case "get-id":
+      sendResponse(chrome.runtime.id);
+      return true;
+    case "login": {
+      // TODO: login logic here!
+      sendResponse({
+        name: "André Alves",
+        avatar:
+          "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
+      });
+      return true;
+    }
+    default:
+      return true;
+  }
 });
 
 chrome.runtime.onSuspend.addListener(function () {
@@ -99,4 +130,23 @@ socket.on("message", (message) => {
   console.warn("handle message", message);
   chrome.browserAction.setBadgeText({ text: String(message.count) });
   chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+});
+
+socket.on("new-share", (metadata) => {
+  console.warn("new-share", metadata);
+
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const [tab] = tabs;
+
+    if (!tab) return;
+
+    chrome.tabs.sendMessage(
+      tab.id,
+      { action: "new-share", metadata },
+      function (response) {}
+    );
+  });
+
+  // chrome.browserAction.setBadgeText({ text: String(message.count) });
+  // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
 });

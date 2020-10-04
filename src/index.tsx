@@ -7,7 +7,8 @@ import { App } from "./components";
 import { createStoreProvider } from "./store";
 
 import "./index.scss";
-import { AuthProvider } from "./store/auth-context-provider";
+import { AuthProvider } from "./store/auth/auth-context-provider";
+import { PostsProvider } from "./store/posts/posts-context-provider";
 
 const injectWrapper = document.body;
 const app = document.createElement("div");
@@ -16,7 +17,7 @@ app.id = "shareit-inspireit--chrome-extension";
 
 if (injectWrapper) injectWrapper.prepend(app);
 
-const Store = createStoreProvider([AuthProvider]);
+const Store = createStoreProvider([AuthProvider, PostsProvider]);
 
 ReactDOM.render(
   <ReactShadowRoot>

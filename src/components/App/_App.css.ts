@@ -33,7 +33,7 @@ export const styles = `
         animation-iteration-count: 1;
     }
 
-    .articles {
+    .posts {
         width: 100%;
         padding: 1em;
         overflow-y: auto;
