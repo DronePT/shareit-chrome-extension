@@ -79,10 +79,21 @@ chrome.runtime.onSuspend.addListener(function () {
   chrome.browserAction.setBadgeText({ text: "" });
 });
 
-console.warn("isto funciona?!");
 const socket = io("http://localhost:1337");
 
-setInterval(() => console.log("still alive!"), 1000);
+socket.on("connect", () => {
+  socket.emit(
+    "url",
+    "https://dev.to/burhanuday/react-context-api-usereducer-redux-ogo#signout"
+  );
+
+  socket.emit("url", "https://reactjs.org/docs/strict-mode.html");
+
+  socket.emit(
+    "url",
+    "https://developer.chrome.com/extensions/runtime#method-sendMessage"
+  );
+});
 
 socket.on("message", (message) => {
   console.warn("handle message", message);

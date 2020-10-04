@@ -13,7 +13,6 @@ export const styles = `
         font-family: ${fontFamily};
         font-weight: 400;
         font-size: 16px;
-        text-align: center;
         width: 480px;
         height: 100vh;
         cursor: auto;
@@ -32,6 +31,11 @@ export const styles = `
         animation-timing-function: ease-in-out;
         animation-fill-mode: forwards;
         animation-iteration-count: 1;
+    }
+
+    .articles {
+        width: 100%;
+        padding: 1em;
     }
 
     *, *:before, *:after {
