@@ -1,5 +1,6 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../../store/auth-context-provider";
+import LoginForm, { LoginData } from "./components/LoginForm";
 
 import { styles } from "./_Header.css";
 
@@ -7,21 +8,22 @@ interface Props {}
 
 export const Header: React.FC<Props> = () => {
   const { authActions, authState } = useContext(AuthContext);
+  const [formOpen, setFormOpen] = useState(false);
 
-  const login = () => {
-    authActions?.login({
-      name: "André Alves",
-      avatar:
-        "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
-    });
+  const openSignInForm = () => setFormOpen(true);
+  const closeSignInForm = () => setFormOpen(false);
+
+  const login = (data: LoginData) => {
+    authActions?.login(data);
+    closeSignInForm();
   };
 
   return (
     <>
       <style>{styles}</style>
-      <div className="shareit-header">
+      <header className="shareit-header">
         <h2>
-          Share<span>IT</span>
+          Share<span>it</span>
         </h2>
         {authState?.user ? (
           <div className="shareit-header--user">
@@ -37,11 +39,14 @@ export const Header: React.FC<Props> = () => {
             ></div>
           </div>
         ) : (
-          <div>
-            <button onClick={login}>Signin</button>
-          </div>
+          !formOpen && (
+            <div>
+              <button onClick={openSignInForm}>Signin</button>
+            </div>
+          )
         )}
-      </div>
+      </header>
+      {formOpen && <LoginForm onSubmit={login} onCancel={closeSignInForm} />}
     </>
   );
 };

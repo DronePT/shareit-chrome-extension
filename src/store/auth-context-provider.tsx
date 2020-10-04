@@ -1,5 +1,12 @@
 import React, { useReducer } from "react";
 
+declare const chrome: any;
+
+interface LoginData {
+  email: string;
+  password: string;
+}
+
 interface UserState {
   name: string;
   avatar: string | null;
@@ -10,7 +17,7 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  login(user: UserState): void;
+  login(user: LoginData): void;
   logout(): void;
 }
 
@@ -48,8 +55,13 @@ export const AuthProvider: React.FC<{}> = ({ children }) => {
   const [authState, dispatch] = useReducer(reducer, initialState);
 
   const authActions = {
-    login(user: UserState) {
-      dispatch({ type: AUTH_LOGIN, payload: user });
+    login(user: LoginData) {
+      chrome.runtime.sendMessage(
+        { action: "login", email: user.email, password: user.password },
+        function (user: UserState) {
+          dispatch({ type: AUTH_LOGIN, payload: user });
+        }
+      );
     },
     logout() {
       dispatch({ type: AUTH_LOGOUT });

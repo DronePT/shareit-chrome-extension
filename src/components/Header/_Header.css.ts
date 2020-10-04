@@ -1,4 +1,4 @@
-import { colors } from "../../_vars.css";
+import { boxShadows, colors } from "../../_vars.css";
 
 export const styles = `
 .shareit-header {
@@ -60,5 +60,58 @@ export const styles = `
 .shareit-header h2 span {
   color: ${colors.primary};
   font-weight: 700;
+}
+
+.login-form {
+  width: 100%;
+  background-color: ${colors.accent};
+  padding: 1em;
+
+  animation: slideDown;
+  animation-duration: 260ms;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+}
+
+@keyframes slideDown {
+  from {
+
+      opacity: 0;
+  }
+  to {
+
+      opacity: 1;
+  }
+}
+
+.login-form--field {
+  width: 100%;
+  margin-bottom: .5em;
+}
+
+.login-form--field input {
+  width: 100%;
+  padding: .5em;
+  border: none;
+  outline: none;
+  border-radius: 0.25em;
+  box-shadow: ${boxShadows.normal}
+  color: ${colors.black};
+}
+
+.login-form--field:last-child {
+  margin-bottom: 0;
+}
+
+.login-form--btn-submit {
+  background-color: ${colors.primary};
+  font-weight: 700;
+}
+
+.login-form--btn-cancel {
+  background-color: ${colors.gray};
+  color: ${colors.black};
+  margin-left: 0.5em;
 }
 `;
