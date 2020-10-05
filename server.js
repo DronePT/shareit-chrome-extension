@@ -17,6 +17,7 @@ const io = socketio(server);
 const sockets = {};
 
 const getSocketsCount = () => Object.keys(sockets).length;
+
 const getMetadata = async (targetUrl) => {
   const { body: html, url } = await got(targetUrl);
   const metadata = await metascraper({ html, url });

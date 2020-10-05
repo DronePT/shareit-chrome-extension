@@ -15,16 +15,6 @@ const readTextFile = (file, callback) => {
   rawFile.send(null);
 };
 
-const disable = () => {
-  // for (let i = 0; i < _tabs.length; i += 1) {
-  //   const tab = _tabs[i];
-  //   const code = `document.querySelectorAll('#shareit-inspireit--chrome-extension').forEach(el => el.remove())`;
-  //   chrome.tabs.executeScript(tab.id, { code: code });
-  //   chrome.browserAction.setBadgeText({ text: "", tabId: tab.id });
-  // }
-  _tabs = [];
-};
-
 const executeCode = (tab, code) =>
   new Promise((resolve) => {
     chrome.tabs.executeScript(tab.id, { code }, (executedCode) => {
@@ -141,21 +131,18 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       return true;
     }
     case "login": {
-      // TODO: login logic here!
-      if (
-        request.payload.email === "andre.alves@inspireit.pt" &&
-        request.payload.password === "123456"
-      ) {
-        sendResponse({
-          name: "André Alves",
-          avatar:
-            "https://www.shareicon.net/data/2016/08/05/806962_user_512x512.png",
+      fetch("http://localhost:1337/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(request.payload),
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          sendResponse(response);
         });
-        return true;
-      }
-
-      sendResponse({ error: "Invalid credentials!" });
-
       return true;
     }
     default:

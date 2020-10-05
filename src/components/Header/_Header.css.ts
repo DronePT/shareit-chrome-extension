@@ -54,6 +54,7 @@ export const styles = `
   background-color: #f1f2f3;
   background-repeat: no-repeat;
   background-size: cover;
+  background-position: center;
   border-radius: 50%;
 }
 
