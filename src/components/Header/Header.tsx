@@ -26,6 +26,12 @@ export const Header: React.FC<Props> = () => {
     closeSignInForm();
   };
 
+  const logout = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+    event.preventDefault();
+
+    authActions?.logout();
+  };
+
   const sharePost = async (data: SharePostData) => {
     setIsSharing(true);
 
@@ -51,7 +57,7 @@ export const Header: React.FC<Props> = () => {
           <div className="shareit-header--user">
             <div className="name">
               <span>{authState.user?.name}</span>
-              <a href="#signout" onClick={authActions?.logout}>
+              <a href="#signout" onClick={logout}>
                 Signout
               </a>
             </div>

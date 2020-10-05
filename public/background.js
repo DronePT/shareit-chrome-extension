@@ -195,6 +195,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         });
       return true;
     }
+    case "logout": {
+      token = undefined;
+      saveStorage("token", token);
+
+      sendResponse({ success: true });
+      return true;
+    }
     default:
   }
 });

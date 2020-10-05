@@ -51,7 +51,8 @@ export const useAuthActions = <T>(
           console.warn("ERROR ocurred", error);
         }
       },
-      logout() {
+      async logout() {
+        await sendToBackground("logout", {});
         dispatch({ type: AUTH_LOGOUT });
       },
     }),
