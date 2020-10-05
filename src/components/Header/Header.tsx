@@ -16,6 +16,7 @@ export const Header: React.FC<Props> = () => {
 
   const [formOpen, setFormOpen] = useState(false);
   const [url, setUrl] = useState("");
+  const [isSharing, setIsSharing] = useState(false);
 
   const openSignInForm = () => setFormOpen(true);
   const closeSignInForm = () => setFormOpen(false);
@@ -26,7 +27,12 @@ export const Header: React.FC<Props> = () => {
   };
 
   const sharePost = async (data: SharePostData) => {
+    setIsSharing(true);
+
     const shared = await postsActions?.sharePost(data.url);
+
+    setIsSharing(false);
+
     if (shared && shared.success) {
       setUrl("");
     }
@@ -65,6 +71,7 @@ export const Header: React.FC<Props> = () => {
       {formOpen && <LoginForm onSubmit={login} onCancel={closeSignInForm} />}
       {isLoggedIn && (
         <SharePostForm
+          isLoading={isSharing}
           url={url}
           onChange={(url: string) => setUrl(url)}
           onSubmit={sharePost}

@@ -1,28 +1,26 @@
 import { useContext, useEffect } from "react";
+import { AuthContext } from "../store/auth/auth-context-provider";
 import { PostsContext } from "../store/posts/posts-context-provider";
 
 declare const chrome: any;
 
 export const useChromeRuntime = () => {
   const { postsActions } = useContext(PostsContext);
+  const { authActions } = useContext(AuthContext);
 
   useEffect(() => {
+    authActions?.verifyLogin();
+
     if (chrome?.runtime?.onMessage) {
-      chrome.runtime.onMessage.addListener(function (
-        request: any,
-        sender: any
-      ) {
+      chrome.runtime.onMessage.addListener(function (request: any) {
         if (request.action === "new-share") {
           postsActions?.newPost(request.metadata);
         }
-        console.warn("wtf, does it work?!");
-        console.log("request", request);
-        console.log("sender", sender);
       });
     }
 
     return () => {
       console.warn("useChromeRuntime #unmount");
     };
-  }, [postsActions]);
+  }, [authActions, postsActions]);
 };

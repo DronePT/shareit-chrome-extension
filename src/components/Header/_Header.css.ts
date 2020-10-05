@@ -68,11 +68,25 @@ export const styles = `
   background-color: ${colors.accent};
   padding: 1em;
 
+  position: relative;
+
   animation: slideDown;
   animation-duration: 260ms;
   animation-timing-function: ease-in-out;
   animation-fill-mode: forwards;
   animation-iteration-count: 1;
+}
+
+.login-form .is-loading {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: ${colors.white50};
+  display: flex;
+  justify-content: center;
+  align-items:center;
 }
 
 @keyframes slideDown {

@@ -13,6 +13,7 @@ interface LoginData {
 export interface AuthActions {
   login(user: LoginData): void;
   logout(): void;
+  verifyLogin(): void;
 }
 
 export const useAuthActions = <T>(
@@ -23,6 +24,15 @@ export const useAuthActions = <T>(
 
   const actions = useMemo(
     () => ({
+      async verifyLogin() {
+        const result = await sendToBackground("verify-login", {});
+
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        dispatch({ type: AUTH_LOGIN, payload: result });
+      },
       async login(user: LoginData) {
         try {
           const { email, password } = user;

@@ -6,6 +6,7 @@ export const colors = {
   accent: "#095bff",
   darkBlue: "#0a2a43",
   white: "rgba(255, 255, 255, .87)",
+  white50: "rgba(255, 255, 255, .42)",
   black: "rgba(0, 0, 0, .87)",
   black80: "rgba(0, 0, 0, .64)",
   black50: "rgba(0, 0, 0, .42)",

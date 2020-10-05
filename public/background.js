@@ -1,6 +1,7 @@
 /* global chrome, io */
 const _react = "asset-manifest.json"; // react manifest
-let _tabs = []; // tabs with extension active
+let _tabs = [],
+  token = null; // tabs with extension active
 
 const readTextFile = (file, callback) => {
   // file has to be in the root (/public)
@@ -113,6 +114,25 @@ socket.on("new-share", (metadata) => {
   // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
 });
 
+const saveStorage = (key, value) =>
+  new Promise((resolve) => {
+    chrome.storage.sync.set({ [key]: value }, function () {
+      resolve(value);
+    });
+  });
+
+const getFromStorage = (key) =>
+  new Promise((resolve) => {
+    chrome.storage.sync.get([key], function (result) {
+      resolve(result[key]);
+    });
+  });
+
+getFromStorage("token").then((value) => {
+  console.warn("getFromStorage", value);
+  token = value;
+});
+
 // extension clicked on/off
 chrome.browserAction.onClicked.addListener((tab) => {
   toggleExtension(tab);
@@ -124,10 +144,35 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       sendResponse(chrome.runtime.id);
       return true;
     case "share-post": {
-      socket.emit("url", request.payload.url);
+      fetch("http://localhost:1337/share", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(request.payload),
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          console.warn("response", response);
+          sendResponse({ success: true });
+        });
 
-      sendResponse({ success: true });
-
+      return true;
+    }
+    case "verify-login": {
+      fetch("http://localhost:1337/me", {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((response) => {
+          sendResponse(response);
+        });
       return true;
     }
     case "login": {
@@ -142,12 +187,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         .then((response) => response.json())
         .then((response) => {
           sendResponse(response);
+
+          if (response.token) {
+            token = response.token;
+            saveStorage("token", token);
+          }
         });
       return true;
     }
     default:
-      console.warn("request:", request);
-      console.warn("sender:", sender);
-      return true;
   }
 });

@@ -6,6 +6,7 @@ export interface SharePostData {
 
 interface SharePostFormProps {
   url: string;
+  isLoading: boolean;
   onChange(url: string): void;
   onSubmit(shareData: SharePostData): void;
 }
@@ -14,6 +15,7 @@ const SharePostForm: React.FC<SharePostFormProps> = ({
   url,
   onChange,
   onSubmit,
+  isLoading,
 }) => {
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -22,6 +24,14 @@ const SharePostForm: React.FC<SharePostFormProps> = ({
 
   return (
     <div className="login-form">
+      {isLoading && (
+        <div className="is-loading">
+          <div className="lds-ripple">
+            <div></div>
+            <div></div>
+          </div>
+        </div>
+      )}
       <form action="" method="post" onSubmit={handleFormSubmit}>
         <div className="login-form--field login-form--group-field">
           <input

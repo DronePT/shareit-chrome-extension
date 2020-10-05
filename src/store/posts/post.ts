@@ -3,4 +3,8 @@ export interface Post {
   image: string;
   description: string;
   url: string;
+  likes?: number;
+  sharedBy: {
+    name: string;
+  };
 }
