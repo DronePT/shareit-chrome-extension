@@ -88,6 +88,41 @@ const toggleExtension = (tab) => {
   });
 };
 
+chrome.runtime.onSuspend.addListener(function () {
+  console.log("Unloading.");
+  chrome.browserAction.setBadgeText({ text: "" });
+});
+
+const socket = io(
+  "http://localhost:1337?token=token-example-goes-here-on-connect"
+);
+
+socket.on("connect", () => {
+  console.warn("connected: ", socket.id);
+});
+
+socket.on("message", (message) => {
+  chrome.browserAction.setBadgeText({ text: String(message.count) });
+  chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+});
+
+socket.on("new-share", (metadata) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const [tab] = tabs;
+
+    if (!tab) return;
+
+    chrome.tabs.sendMessage(
+      tab.id,
+      { action: "new-share", metadata },
+      function (response) {}
+    );
+  });
+
+  // chrome.browserAction.setBadgeText({ text: String(message.count) });
+  // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+});
+
 // extension clicked on/off
 chrome.browserAction.onClicked.addListener((tab) => {
   toggleExtension(tab);
@@ -98,6 +133,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     case "get-id":
       sendResponse(chrome.runtime.id);
       return true;
+    case "share-post": {
+      socket.emit("url", request.payload.url);
+
+      sendResponse({ success: true });
+
+      return true;
+    }
     case "login": {
       // TODO: login logic here!
       if (
@@ -121,47 +163,4 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       console.warn("sender:", sender);
       return true;
   }
-});
-
-chrome.runtime.onSuspend.addListener(function () {
-  console.log("Unloading.");
-  chrome.browserAction.setBadgeText({ text: "" });
-});
-
-const socket = io("http://localhost:1337");
-
-socket.on("connect", () => {
-  socket.emit(
-    "url",
-    "https://dev.to/burhanuday/react-context-api-usereducer-redux-ogo#signout"
-  );
-
-  socket.emit("url", "https://reactjs.org/docs/strict-mode.html");
-
-  socket.emit(
-    "url",
-    "https://developer.chrome.com/extensions/runtime#method-sendMessage"
-  );
-});
-
-socket.on("message", (message) => {
-  chrome.browserAction.setBadgeText({ text: String(message.count) });
-  chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
-});
-
-socket.on("new-share", (metadata) => {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    const [tab] = tabs;
-
-    if (!tab) return;
-
-    chrome.tabs.sendMessage(
-      tab.id,
-      { action: "new-share", metadata },
-      function (response) {}
-    );
-  });
-
-  // chrome.browserAction.setBadgeText({ text: String(message.count) });
-  // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
 });

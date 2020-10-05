@@ -7,15 +7,11 @@ export const useChromeRuntime = () => {
   const { postsActions } = useContext(PostsContext);
 
   useEffect(() => {
-    console.warn("Yea something is happening!");
     if (chrome?.runtime?.onMessage) {
       chrome.runtime.onMessage.addListener(function (
         request: any,
         sender: any
       ) {
-        console.warn("is it, really?!", chrome.runtime.id);
-        console.dir(chrome.runtime);
-
         if (request.action === "new-share") {
           postsActions?.newPost(request.metadata);
         }

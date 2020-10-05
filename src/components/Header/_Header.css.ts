@@ -104,6 +104,31 @@ export const styles = `
   margin-bottom: 0;
 }
 
+.login-form--field.login-form--group-field {
+  display: flex;
+  flex-direction: row;
+}
+
+.login-form--field.login-form--group-field button {
+  margin-left: 0.5em;
+}
+
+.login-form--btn-share {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: ${colors.primary};
+}
+
+.login-form--btn-share i {
+  width: 18px;
+  margin-right: .5em;
+}
+
+.login-form--btn-share i path {
+  fill: ${colors.white};
+}
+
 .login-form--btn-submit {
   background-color: ${colors.primary};
   font-weight: 700;

@@ -35,7 +35,9 @@ export const styles = `
     background: linear-gradient(0deg, rgba(13,0,26,0.95) 0%, rgba(13,0,26,0.85) 15%, rgba(13,0,26,0) 100%);
 
     width: 100%;
-    height: 75%;
+    height: 100%;
+
+    text-shadow: 0px 2px ${colors.primary50};
 
     display: flex;
     align-items: flex-end;
