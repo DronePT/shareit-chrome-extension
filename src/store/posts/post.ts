@@ -3,6 +3,7 @@ interface User {
   avatar: string;
 }
 export interface Post {
+  _id: string;
   title: string;
   image: string;
   description: string;

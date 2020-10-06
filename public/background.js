@@ -113,13 +113,15 @@ const connectToSocket = (token) => {
   });
 
   socket.on("new-share", (metadata) => {
-    console.warn("new-share", metadata);
     sendToActiveTab({ action: "new-share", metadata }).catch((error) =>
       console.error(error)
     );
+  });
 
-    // chrome.browserAction.setBadgeText({ text: String(message.count) });
-    // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+  socket.on("new-like", (postId) => {
+    sendToActiveTab({ action: "new-like", postId }).catch((error) =>
+      console.error(error)
+    );
   });
 };
 
@@ -178,6 +180,22 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       })
         .then((response) => response.json())
         .then((response) => {
+          sendResponse({ success: true });
+        });
+
+      return true;
+    }
+    case "like-post": {
+      fetch(`http://localhost:1337/posts/${request.payload.postId}/like`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((response) => response.json())
+        .then(() => {
           sendResponse({ success: true });
         });
 

@@ -6,12 +6,15 @@ import { sendToBackground } from "../api/send-to-background";
 export const POSTS_NEW = "POSTS/NEW";
 export const POSTS_SHARE = "POSTS/SHARE";
 export const POSTS_POPULATE = "POSTS/POPULATE";
+export const POSTS_LIKE = "POSTS/LIKE";
 
 interface SharePostResult {
   success: boolean;
 }
 export interface PostsActions {
   newPost(post: Post): void;
+  newLike(postId: string): void;
+  likePost(postId: string): Promise<void>;
   populatePosts(posts: Post[]): void;
   sharePost(url: string): Promise<SharePostResult>;
 }
@@ -26,6 +29,12 @@ export const usePostsActions = <T>(
     () => ({
       newPost(post: Post) {
         dispatch({ type: POSTS_NEW, payload: post });
+      },
+      newLike(postId: string) {
+        dispatch({ type: POSTS_LIKE, payload: postId });
+      },
+      async likePost(postId: string) {
+        await sendToBackground("like-post", { postId });
       },
       populatePosts(posts: Post[]) {
         dispatch({ type: POSTS_POPULATE, payload: posts });

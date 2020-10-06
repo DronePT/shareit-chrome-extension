@@ -17,6 +17,10 @@ export const useChromeRuntime = () => {
           postsActions?.newPost(request.metadata);
         }
 
+        if (request.action === "new-like") {
+          postsActions?.newLike(request.postId);
+        }
+
         if (request.action === "posts") {
           postsActions?.populatePosts(request.posts);
         }

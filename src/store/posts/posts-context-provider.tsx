@@ -3,6 +3,7 @@ import { ReducerAction } from "../typings";
 import { Post } from "./post";
 import {
   PostsActions,
+  POSTS_LIKE,
   POSTS_NEW,
   POSTS_POPULATE,
   usePostsActions,
@@ -27,6 +28,15 @@ const reducer = (state: PostsState, action: ReducerAction) => {
         ...state,
         lastPost: action.payload,
         posts: [action.payload, ...state.posts],
+      };
+    case POSTS_LIKE:
+      return {
+        ...state,
+        posts: state.posts.map((post) => {
+          if (post._id !== action.payload) return post;
+
+          return { ...post, likes: [...post.likes, {}] };
+        }),
       };
     case POSTS_POPULATE:
       return {

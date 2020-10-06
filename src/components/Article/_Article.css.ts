@@ -27,6 +27,9 @@ export const styles = `
     background-size: cover;
     background-position: center center;
 
+    color: inherit;
+    text-decoration: none;
+
     display: flex;
     align-items: flex-end;
   }
