@@ -1,7 +1,12 @@
 import React from "react";
 import { ReducerAction } from "../typings";
 import { Post } from "./post";
-import { PostsActions, POSTS_NEW, usePostsActions } from "./posts-actions";
+import {
+  PostsActions,
+  POSTS_NEW,
+  POSTS_POPULATE,
+  usePostsActions,
+} from "./posts-actions";
 
 declare const chrome: any;
 
@@ -22,6 +27,11 @@ const reducer = (state: PostsState, action: ReducerAction) => {
         ...state,
         lastPost: action.payload,
         posts: [action.payload, ...state.posts],
+      };
+    case POSTS_POPULATE:
+      return {
+        ...state,
+        posts: [...state.posts, ...action.payload],
       };
     default:
       return state;

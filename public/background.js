@@ -85,6 +85,19 @@ chrome.runtime.onSuspend.addListener(function () {
   chrome.browserAction.setBadgeText({ text: "" });
 });
 
+const sendToActiveTab = (message) =>
+  new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      const [tab] = tabs;
+
+      if (!tab) return reject(new Error("no active tab found"));
+
+      chrome.tabs.sendMessage(tab.id, message, function () {});
+
+      resolve();
+    });
+  });
+
 const connectToSocket = (token) => {
   if (socket) socket.disconnect();
 
@@ -100,22 +113,30 @@ const connectToSocket = (token) => {
   });
 
   socket.on("new-share", (metadata) => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const [tab] = tabs;
-
-      if (!tab) return;
-
-      chrome.tabs.sendMessage(
-        tab.id,
-        { action: "new-share", metadata },
-        function (response) {}
-      );
-    });
+    console.warn("new-share", metadata);
+    sendToActiveTab({ action: "new-share", metadata }).catch((error) =>
+      console.error(error)
+    );
 
     // chrome.browserAction.setBadgeText({ text: String(message.count) });
     // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
   });
 };
+
+const fetchPosts = (page = 1) =>
+  fetch(`http://localhost:1337/posts?page=${page}`, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((response) => response.json())
+    .then((response) => {
+      sendToActiveTab({ action: "posts", posts: response }).catch((error) =>
+        console.error(error)
+      );
+    });
 
 const saveStorage = (key, value) =>
   new Promise((resolve) => {
@@ -132,7 +153,6 @@ const getFromStorage = (key) =>
   });
 
 getFromStorage("token").then((value) => {
-  console.warn("getFromStorage", value);
   token = value;
 });
 
@@ -158,7 +178,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       })
         .then((response) => response.json())
         .then((response) => {
-          console.warn("response", response);
           sendResponse({ success: true });
         });
 
@@ -176,6 +195,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         .then((response) => {
           sendResponse(response);
           connectToSocket(token);
+          fetchPosts(1);
         });
       return true;
     }

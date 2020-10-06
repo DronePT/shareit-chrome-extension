@@ -16,6 +16,10 @@ export const useChromeRuntime = () => {
         if (request.action === "new-share") {
           postsActions?.newPost(request.metadata);
         }
+
+        if (request.action === "posts") {
+          postsActions?.populatePosts(request.posts);
+        }
       });
     }
 
