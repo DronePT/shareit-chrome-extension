@@ -1,7 +1,8 @@
 /* global chrome, io */
 const _react = "asset-manifest.json"; // react manifest
-let _tabs = [],
-  token = null; // tabs with extension active
+let _tabs = [], // tabs with extension active
+  token = null,
+  socket = null;
 
 const readTextFile = (file, callback) => {
   // file has to be in the root (/public)
@@ -84,35 +85,37 @@ chrome.runtime.onSuspend.addListener(function () {
   chrome.browserAction.setBadgeText({ text: "" });
 });
 
-const socket = io(
-  "http://localhost:1337?token=token-example-goes-here-on-connect"
-);
+const connectToSocket = (token) => {
+  if (socket) socket.disconnect();
 
-socket.on("connect", () => {
-  console.warn("connected: ", socket.id);
-});
+  socket = io(`http://localhost:1337?token=${token}`);
 
-socket.on("message", (message) => {
-  chrome.browserAction.setBadgeText({ text: String(message.count) });
-  chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
-});
-
-socket.on("new-share", (metadata) => {
-  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    const [tab] = tabs;
-
-    if (!tab) return;
-
-    chrome.tabs.sendMessage(
-      tab.id,
-      { action: "new-share", metadata },
-      function (response) {}
-    );
+  socket.on("connect", () => {
+    console.warn("connected: ", socket.id);
   });
 
-  // chrome.browserAction.setBadgeText({ text: String(message.count) });
-  // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
-});
+  socket.on("message", (message) => {
+    chrome.browserAction.setBadgeText({ text: String(message.count) });
+    chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+  });
+
+  socket.on("new-share", (metadata) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      const [tab] = tabs;
+
+      if (!tab) return;
+
+      chrome.tabs.sendMessage(
+        tab.id,
+        { action: "new-share", metadata },
+        function (response) {}
+      );
+    });
+
+    // chrome.browserAction.setBadgeText({ text: String(message.count) });
+    // chrome.browserAction.setBadgeBackgroundColor({ color: "crimson" });
+  });
+};
 
 const saveStorage = (key, value) =>
   new Promise((resolve) => {
@@ -172,6 +175,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         .then((response) => response.json())
         .then((response) => {
           sendResponse(response);
+          connectToSocket(token);
         });
       return true;
     }
@@ -190,6 +194,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
           if (response.token) {
             token = response.token;
+            connectToSocket(token);
             saveStorage("token", token);
           }
         });
@@ -198,7 +203,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
     case "logout": {
       token = undefined;
       saveStorage("token", token);
-
+      if (socket) socket.disconnect();
       sendResponse({ success: true });
       return true;
     }
